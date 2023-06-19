@@ -1,0 +1,1 @@
+rootProject.name = "com.example.my_chat_sample"
