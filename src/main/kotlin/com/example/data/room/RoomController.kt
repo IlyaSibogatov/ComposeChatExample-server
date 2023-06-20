@@ -36,20 +36,18 @@ class RoomController(
     ) {
         val fromChat = members.values.find { it.username == senderUsername }?.chatId
 
+        val messageEntity = Message(
+            message = message,
+            username = senderUsername,
+            timestamp = System.currentTimeMillis(),
+        )
+        val parsedMessage = Json.encodeToString(messageEntity)
+
         members.values.forEach { member ->
-
-            if (member.chatId == fromChat) {
-                val messageEntity = Message(
-                    message = message,
-                    username = senderUsername,
-                    timestamp = System.currentTimeMillis(),
-                )
+            if (member.username == messageEntity.username)
                 messageDataSource.insertMessage(member.chatId, msg = messageEntity)
-
-                val parsedMessage = Json.encodeToString(messageEntity)
-
+            if (member.chatId == fromChat)
                 member.socket.send(Frame.Text(parsedMessage))
-            }
         }
     }
 
