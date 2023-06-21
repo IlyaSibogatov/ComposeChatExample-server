@@ -1,4 +1,4 @@
-package com.example.data.room
+package com.example.data.model.chat
 
 import io.ktor.websocket.*
 

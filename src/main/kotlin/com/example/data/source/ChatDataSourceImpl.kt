@@ -1,7 +1,6 @@
 package com.example.data.source
 
-import com.example.data.model.Chat
-import com.example.data.model.Message
+import com.example.data.model.chat.Chat
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
@@ -10,7 +9,6 @@ class ChatDataSourceImpl(
 ) : ChatDataSource {
 
     private val chats = db.getCollection<Chat>()
-    private val messageRoom = db.getCollection<Message>()
 
     override suspend fun getAllChats(): List<Chat> {
         return chats.find()
