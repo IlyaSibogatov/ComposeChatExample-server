@@ -1,6 +1,6 @@
 package com.example.data.source
 
-import com.example.data.model.Message
+import com.example.data.model.chat.Message
 
 interface MessageDataSource {
 

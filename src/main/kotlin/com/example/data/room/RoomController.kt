@@ -1,7 +1,9 @@
 package com.example.data.room
 
-import com.example.data.model.Message
+import com.example.data.model.chat.Member
+import com.example.data.model.chat.Message
 import com.example.data.source.MessageDataSource
+import com.example.utils.customexceptions.MemberAlreadyExistsException
 import io.ktor.websocket.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

@@ -1,8 +1,9 @@
 package com.example.routes
 
 import com.example.data.chat.ChatController
-import com.example.data.model.ChatDTO
-import com.example.data.room.MemberAlreadyExistsException
+import com.example.data.model.chat.ChatDTO
+import com.example.data.response.DefaultResponse
+import com.example.utils.customexceptions.MemberAlreadyExistsException
 import com.example.data.room.RoomController
 import com.example.session.ChatSession
 import io.ktor.http.*
@@ -66,17 +67,18 @@ fun Route.chats(chatController: ChatController) {
     post(path = "/create") {
         val chat = call.receive<ChatDTO>()
         chatController.createChat(chat).let {
-            if (it) {
-                call.respond(
-                    HttpStatusCode.Created,
-                    "Room was created"
+            if (it) call.respond(
+                DefaultResponse(
+                    msg = "Chat has been created",
+                    status = 200
                 )
-            } else {
-                call.respond(
-                    HttpStatusCode.OK,
-                    "Something went wrong"
+            )
+            else call.respond(
+                DefaultResponse(
+                    msg = "You already have chat",
+                    status = 204
                 )
-            }
+            )
         }
     }
 }

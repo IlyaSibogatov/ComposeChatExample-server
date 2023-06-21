@@ -1,6 +1,6 @@
 package com.example.data.source
 
-import com.example.data.model.Chat
+import com.example.data.model.chat.Chat
 
 interface ChatDataSource {
     suspend fun getAllChats(): List<Chat>
