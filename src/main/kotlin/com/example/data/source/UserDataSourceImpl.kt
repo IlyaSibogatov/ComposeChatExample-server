@@ -4,6 +4,7 @@ import com.example.data.model.user.User
 import com.example.data.model.user.UserDTO
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
+import org.mindrot.jbcrypt.BCrypt
 
 class UserDataSourceImpl(
     private val db: CoroutineDatabase
@@ -16,7 +17,7 @@ class UserDataSourceImpl(
             users.insertOne(
                 User(
                     username = userCredentials.username,
-                    password = userCredentials.password,
+                    password = userCredentials.hashedPassword(),
                     timestamp = System.currentTimeMillis()
                 )
             )
@@ -24,9 +25,12 @@ class UserDataSourceImpl(
         } else false
     }
 
-    override suspend fun login(userCredentials: UserDTO): Boolean =
-        users.find(
-            User::username eq userCredentials.username,
-            User::password eq userCredentials.password,
-        ).toList().isNotEmpty()
+    override suspend fun login(userCredentials: UserDTO): Boolean {
+        val foundedUsers = users.find(
+            User::username eq userCredentials.username
+        ).toList()
+        return if (foundedUsers.isNotEmpty()) {
+            BCrypt.checkpw(userCredentials.password, foundedUsers.first().password)
+        } else false
+    }
 }
