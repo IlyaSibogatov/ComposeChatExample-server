@@ -2,6 +2,7 @@ package com.example.routes
 
 import com.example.data.chat.ChatController
 import com.example.data.model.chat.ChatDTO
+import com.example.data.model.chat.Message
 import com.example.data.response.DefaultResponse
 import com.example.utils.customexceptions.MemberAlreadyExistsException
 import com.example.data.room.RoomController
@@ -48,11 +49,12 @@ fun Route.chatSocketRoute(roomController: RoomController) {
     }
 }
 
-fun Route.getAllMessages(roomController: RoomController) {
+fun Route.messages(roomController: RoomController) {
     get(path = "/messages") {
+        val chatId = call.parameters["chatId"]
         call.respond(
             HttpStatusCode.OK,
-            roomController.getAllMessages()
+            roomController.getAllMessages(chatId!!)
         )
     }
 }

@@ -6,9 +6,10 @@ import org.bson.types.ObjectId
 
 @Serializable
 data class Message(
-    val message: String,
+    var message: String,
     val username: String,
     val timestamp: Long,
+    var wasEdit: Boolean,
     @BsonId
     val id: String = ObjectId().toString()
 )

@@ -14,7 +14,6 @@ class RoomController(
 ) {
     private val members = ConcurrentHashMap<String, Member>()
 
-    private lateinit var chatId: String
 
     fun onJoin(
         username: String,
@@ -29,7 +28,6 @@ class RoomController(
             socket = socket,
             chatId = chatId
         )
-        this.chatId = chatId
     }
 
     suspend fun sendMessage(
@@ -42,21 +40,49 @@ class RoomController(
             message = message,
             username = senderUsername,
             timestamp = System.currentTimeMillis(),
+            wasEdit = false,
         )
         val parsedMessage = Json.encodeToString(messageEntity)
 
         members.values.forEach { member ->
-            if (member.username == messageEntity.username)
-                messageDataSource.insertMessage(member.chatId, msg = messageEntity)
-            if (member.chatId == fromChat)
-                member.socket.send(Frame.Text(parsedMessage))
+            if (member.username == senderUsername) {
+                when {
+                    (message.startsWith(REMOVE_MESSAGE_ROUTE)) -> {
+                        messageDataSource.removeMessage(
+                            chatId = member.chatId,
+                            id = message.replace(REMOVE_MESSAGE_ROUTE, EMPTY_CHAR)
+                        )
+                    }
+                    (message.startsWith(EDIT_MESSAGE_ROUTE)) -> {
+                        val splittedMessage = message.split(SPLITTER)
+                        messageDataSource.editMessage(
+                            chatId = member.chatId,
+                            id = splittedMessage[0].replace(EDIT_MESSAGE_ROUTE, EMPTY_CHAR),
+                            msg = splittedMessage[1]
+                        )
+                    }
+                    else -> {
+                        messageDataSource.insertMessage(member.chatId, msg = messageEntity)
+                    }
+                }
+                if (member.chatId == fromChat)
+                    member.socket.send(Frame.Text(parsedMessage))
+            }
         }
     }
 
-    suspend fun getAllMessages(): List<Message> = messageDataSource.getAllMessages(chatId) ?: emptyList()
+    suspend fun getAllMessages(chatId: String): List<Message> =
+        messageDataSource.getAllMessages(chatId) ?: emptyList()
 
     suspend fun tryDisconnect(username: String) {
         members[username]?.socket?.close()
         if (members.containsKey(username)) members.remove(username)
+    }
+
+    companion object {
+        const val EDIT_MESSAGE_ROUTE = "update_message_with_id="
+        const val REMOVE_MESSAGE_ROUTE = "remove_message_with_id="
+        const val SPLITTER = "/"
+        const val EMPTY_CHAR = ""
     }
 }
