@@ -65,9 +65,9 @@ class RoomController(
                         messageDataSource.insertMessage(member.chatId, msg = messageEntity)
                     }
                 }
-                if (member.chatId == fromChat)
-                    member.socket.send(Frame.Text(parsedMessage))
             }
+            if (member.chatId == fromChat)
+                member.socket.send(Frame.Text(parsedMessage))
         }
     }
 
