@@ -2,7 +2,6 @@ package com.example.routes
 
 import com.example.data.chat.ChatController
 import com.example.data.model.chat.ChatDTO
-import com.example.data.model.chat.Message
 import com.example.data.response.DefaultResponse
 import com.example.utils.customexceptions.MemberAlreadyExistsException
 import com.example.data.room.RoomController
@@ -27,6 +26,7 @@ fun Route.chatSocketRoute(roomController: RoomController) {
         try {
             roomController.onJoin(
                 username = session.username,
+                userId = session.userId,
                 sessionId = session.sessionId,
                 socket = this,
                 chatId = session.chatId
@@ -35,6 +35,7 @@ fun Route.chatSocketRoute(roomController: RoomController) {
                 if (frame is Frame.Text) {
                     roomController.sendMessage(
                         senderUsername = session.username,
+                        senderId = session.userId,
                         message = frame.readText(),
                     )
                 }
