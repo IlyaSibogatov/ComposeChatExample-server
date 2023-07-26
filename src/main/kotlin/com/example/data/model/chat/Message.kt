@@ -8,6 +8,7 @@ import org.bson.types.ObjectId
 data class Message(
     var message: String,
     val username: String,
+    val userId: String,
     val timestamp: Long,
     var wasEdit: Boolean,
     @BsonId
