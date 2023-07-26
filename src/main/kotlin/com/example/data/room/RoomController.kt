@@ -17,6 +17,7 @@ class RoomController(
 
     fun onJoin(
         username: String,
+        userId: String,
         sessionId: String,
         socket: WebSocketSession,
         chatId: String,
@@ -24,6 +25,7 @@ class RoomController(
         if (members.containsKey(username)) throw MemberAlreadyExistsException()
         members[username] = Member(
             username = username,
+            userId = userId,
             sessionId = sessionId,
             socket = socket,
             chatId = chatId
@@ -32,6 +34,7 @@ class RoomController(
 
     suspend fun sendMessage(
         senderUsername: String,
+        senderId: String,
         message: String,
     ) {
         val fromChat = members.values.find { it.username == senderUsername }?.chatId
@@ -39,6 +42,7 @@ class RoomController(
         val messageEntity = Message(
             message = message,
             username = senderUsername,
+            userId = senderId,
             timestamp = System.currentTimeMillis(),
             wasEdit = false,
         )
