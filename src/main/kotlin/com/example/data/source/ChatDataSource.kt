@@ -6,4 +6,6 @@ interface ChatDataSource {
     suspend fun getAllChats(): List<Chat>
 
     suspend fun createChat(chat: Chat): Boolean
+
+    suspend fun removeChat(chatId: String): Boolean
 }

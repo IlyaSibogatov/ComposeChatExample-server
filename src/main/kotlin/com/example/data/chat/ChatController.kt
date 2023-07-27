@@ -21,4 +21,8 @@ class ChatController(
             return it
         }
     }
+
+    suspend fun removeChat(chatId: String): Boolean {
+        return chatDataSource.removeChat(chatId)
+    }
 }
