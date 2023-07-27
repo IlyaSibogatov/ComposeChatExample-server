@@ -23,4 +23,12 @@ class ChatDataSourceImpl(
             true
         } else false
     }
+
+    override suspend fun removeChat(chatId: String): Boolean {
+        val chat = chats.find(Chat::id eq chatId).first()
+        chat?.let {
+            chats.deleteOne(Chat::id eq chatId)
+            return true
+        } ?: return false
+    }
 }
