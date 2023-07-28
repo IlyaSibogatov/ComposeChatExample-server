@@ -7,5 +7,6 @@ interface ChatDataSource {
 
     suspend fun createChat(chat: Chat): Boolean
 
+    suspend fun updateChat(chat: Chat): Boolean
     suspend fun removeChat(chatId: String): Boolean
 }
