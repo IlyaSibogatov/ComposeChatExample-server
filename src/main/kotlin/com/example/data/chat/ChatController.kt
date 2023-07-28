@@ -12,7 +12,6 @@ class ChatController(
 
     suspend fun createChat(chat: ChatDTO): Boolean {
         val chatEntity = Chat(
-            id = chat.id,
             name = chat.name,
             password = chat.password,
             owner = chat.owner,
@@ -25,7 +24,6 @@ class ChatController(
 
     suspend fun updateChat(chat: ChatDTO): Boolean {
         val chatEntity = Chat(
-            id = chat.id,
             name = chat.name,
             password = chat.password,
             owner = chat.owner,
