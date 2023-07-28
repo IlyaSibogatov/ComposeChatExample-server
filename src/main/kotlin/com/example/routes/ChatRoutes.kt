@@ -84,6 +84,23 @@ fun Route.chats(chatController: ChatController) {
             )
         }
     }
+    post(path = "/update") {
+        val chat = call.receive<ChatDTO>()
+        chatController.updateChat(chat).let {
+            if (it) call.respond(
+                DefaultResponse(
+                    msg = "Chat was updated",
+                    status = 200,
+                )
+            )
+            else call.respond(
+                DefaultResponse(
+                    msg = "Chat update exception",
+                    status = 204,
+                )
+            )
+        }
+    }
     post(path = "/delete") {
         val chatId = call.parameters["chatId"]
         chatId?.let { chatid ->
