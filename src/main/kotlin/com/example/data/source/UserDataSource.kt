@@ -1,7 +1,8 @@
 package com.example.data.source
 
-import com.example.data.model.user.User
+import com.example.data.model.user.Friend
 import com.example.data.model.user.UserDTO
+import com.example.data.model.user.UserFromId
 
 interface UserDataSource {
 
@@ -11,5 +12,11 @@ interface UserDataSource {
 
     suspend fun logout(uid: String): Boolean
 
-    suspend fun getUserById(uid: String): User?
+    suspend fun getUserById(uid: String): UserFromId?
+
+    suspend fun friendshipRequest(selfId: String, userId: String): Boolean
+
+    suspend fun acceptFriendship(selfId: String, userId: String, accept: Boolean)
+
+    suspend fun getFollowerFriends(uid: String, type: String): List<Friend>
 }
