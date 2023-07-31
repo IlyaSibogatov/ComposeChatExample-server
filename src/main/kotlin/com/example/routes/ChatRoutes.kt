@@ -3,9 +3,9 @@ package com.example.routes
 import com.example.data.chat.ChatController
 import com.example.data.model.chat.ChatDTO
 import com.example.data.response.DefaultResponse
-import com.example.utils.customexceptions.MemberAlreadyExistsException
 import com.example.data.room.RoomController
 import com.example.session.ChatSession
+import com.example.utils.customexceptions.MemberAlreadyExistsException
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -73,13 +73,13 @@ fun Route.chats(chatController: ChatController) {
             if (it) call.respond(
                 DefaultResponse(
                     msg = "Chat has been created",
-                    status = 200
+                    status = HttpStatusCode.OK.value
                 )
             )
             else call.respond(
                 DefaultResponse(
                     msg = "You already have chat",
-                    status = 204
+                    status = HttpStatusCode.NoContent.value
                 )
             )
         }
@@ -90,13 +90,13 @@ fun Route.chats(chatController: ChatController) {
             if (it) call.respond(
                 DefaultResponse(
                     msg = "Chat was updated",
-                    status = 200,
+                    status = HttpStatusCode.OK.value,
                 )
             )
             else call.respond(
                 DefaultResponse(
                     msg = "Chat update exception",
-                    status = 204,
+                    status = HttpStatusCode.NoContent.value,
                 )
             )
         }
@@ -108,7 +108,7 @@ fun Route.chats(chatController: ChatController) {
                 if (repsonse) {
                     call.respond(
                         HttpStatusCode.OK,
-                    true
+                        true
                     )
                 } else {
                     call.respond(
