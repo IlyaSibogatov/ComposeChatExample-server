@@ -1,12 +1,13 @@
 package com.example.data.users
 
 import com.example.data.model.user.Friend
+import com.example.data.model.user.NewUserInfo
 import com.example.data.model.user.UserDTO
 import com.example.data.model.user.UserFromId
 import com.example.data.source.UserDataSource
 
 class UserController(
-    private val userDataSource: UserDataSource
+    private val userDataSource: UserDataSource,
 ) {
 
     suspend fun regUser(userCredentials: UserDTO): String? =
@@ -29,4 +30,7 @@ class UserController(
 
     suspend fun getFollowerFriends(uid: String, type: String): List<Friend> =
         userDataSource.getFollowerFriends(uid, type)
+
+    suspend fun updateUser(newInfo: NewUserInfo) =
+        userDataSource.updateUser(newInfo)
 }
