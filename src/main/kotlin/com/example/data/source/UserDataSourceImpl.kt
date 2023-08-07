@@ -1,9 +1,6 @@
 package com.example.data.source
 
-import com.example.data.model.user.Friend
-import com.example.data.model.user.User
-import com.example.data.model.user.UserDTO
-import com.example.data.model.user.UserFromId
+import com.example.data.model.user.*
 import com.example.utils.Constants.FOLLOWERS
 import com.example.utils.Constants.FRIENDS
 import com.example.utils.Constants.FRIENDSHIPS_REQUESTS
@@ -12,7 +9,7 @@ import org.litote.kmongo.eq
 import org.mindrot.jbcrypt.BCrypt
 
 class UserDataSourceImpl(
-    private val db: CoroutineDatabase
+    private val db: CoroutineDatabase,
 ) : UserDataSource {
 
     private val users = db.getCollection<User>()
@@ -147,5 +144,16 @@ class UserDataSourceImpl(
                 onlineStatus = it.onlineStatus,
             )
         } ?: return null
+    }
+
+    override suspend fun updateUser(newInfo: NewUserInfo): Boolean {
+        val user = users.find(User::id eq newInfo.id).first()
+        user?.let {
+            it.username = newInfo.username
+            it.selfInfo = newInfo.selfInfo
+            it.lastActionTime = System.currentTimeMillis()
+            users.updateOne(User::id eq newInfo.id, it)
+            return true
+        } ?: return false
     }
 }

@@ -1,5 +1,6 @@
 package com.example.routes
 
+import com.example.data.model.user.NewUserInfo
 import com.example.data.model.user.UserDTO
 import com.example.data.response.DefaultResponse
 import com.example.data.users.UserController
@@ -116,5 +117,22 @@ fun Route.signup(userController: UserController) {
                 status = HttpStatusCode.OK.value,
             )
         )
+    }
+    post(path = "/updateuser") {
+        val newInfo = call.receive<NewUserInfo>()
+        userController.updateUser(newInfo).let {
+            if (it) call.respond(
+                DefaultResponse(
+                    msg = "Update success",
+                    status = 200,
+                )
+            )
+            else call.respond(
+                DefaultResponse(
+                    msg = "Update failed",
+                    status = 204,
+                )
+            )
+        }
     }
 }
