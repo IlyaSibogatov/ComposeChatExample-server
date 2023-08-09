@@ -14,8 +14,9 @@ class ChatController(
         val chatEntity = Chat(
             name = chat.name,
             password = chat.password,
-            owner = chat.owner,
             timestamp = System.currentTimeMillis(),
+            owner = chat.owner,
+            ownerId = chat.ownerId,
         )
         chatDataSource.createChat(chatEntity).let {
             return it
@@ -26,8 +27,9 @@ class ChatController(
         val chatEntity = Chat(
             name = chat.name,
             password = chat.password,
-            owner = chat.owner,
             timestamp = System.currentTimeMillis(),
+            owner = chat.owner,
+            ownerId = chat.ownerId,
         )
         chatDataSource.updateChat(chatEntity).let {
             return it
