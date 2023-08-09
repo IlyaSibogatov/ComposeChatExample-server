@@ -1,6 +1,7 @@
 package com.example.routes
 
 import com.example.data.chat.ChatController
+import com.example.data.model.chat.Chat
 import com.example.data.model.chat.ChatDTO
 import com.example.data.response.DefaultResponse
 import com.example.data.room.RoomController
@@ -56,6 +57,13 @@ fun Route.messages(roomController: RoomController) {
         call.respond(
             HttpStatusCode.OK,
             roomController.getAllMessages(chatId!!)
+        )
+    }
+    get(path = "/followers") {
+        val chatId = call.parameters["chatId"]
+        call.respond(
+            HttpStatusCode.OK,
+            roomController.getFollowers(chatId!!)
         )
     }
 }
