@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class NewUserInfo(
     val id: String,
     val username: String,
-    val selfInfo: String = "",
+    val selfInfo: String,
 )
