@@ -32,12 +32,6 @@ data class UserFromId(
 )
 
 @Serializable
-data class UserChatInfo(
-    val uuid: String,
-    val username: String,
-)
-
-@Serializable
 data class Friend(
     val id: String,
     val username: String,
