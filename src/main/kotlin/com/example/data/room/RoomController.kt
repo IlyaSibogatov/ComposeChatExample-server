@@ -2,6 +2,7 @@ package com.example.data.room
 
 import com.example.data.model.chat.Member
 import com.example.data.model.chat.Message
+import com.example.data.model.user.UserChatInfo
 import com.example.data.source.MessageDataSource
 import com.example.utils.customexceptions.MemberAlreadyExistsException
 import io.ktor.websocket.*
@@ -15,7 +16,7 @@ class RoomController(
     private val members = ConcurrentHashMap<String, Member>()
 
 
-    fun onJoin(
+     suspend fun onJoin(
         username: String,
         userId: String,
         sessionId: String,
@@ -30,6 +31,14 @@ class RoomController(
             socket = socket,
             chatId = chatId
         )
+         if (!members.containsKey(userId))
+         messageDataSource.addFollower(chatId, userId).also {
+             sendMessage(
+                 senderUsername = username,
+                 senderId = userId,
+                 message = ADD_FOLLOWERS + userId
+             )
+         }
     }
 
     suspend fun sendMessage(
@@ -41,7 +50,6 @@ class RoomController(
 
         val messageEntity = Message(
             message = message,
-            username = senderUsername,
             userId = senderId,
             timestamp = System.currentTimeMillis(),
             wasEdit = false,
@@ -65,6 +73,7 @@ class RoomController(
                             msg = splittedMessage[1]
                         )
                     }
+                    message.startsWith(ADD_FOLLOWERS) -> {}
                     else -> {
                         messageDataSource.insertMessage(member.chatId, msg = messageEntity)
                     }
@@ -77,6 +86,8 @@ class RoomController(
 
     suspend fun getAllMessages(chatId: String): List<Message> =
         messageDataSource.getAllMessages(chatId) ?: emptyList()
+    suspend fun getFollowers(chatId: String): List<UserChatInfo> =
+        messageDataSource.getFollowers(chatId)
 
     suspend fun tryDisconnect(username: String) {
         members[username]?.socket?.close()
@@ -86,6 +97,7 @@ class RoomController(
     companion object {
         const val EDIT_MESSAGE_ROUTE = "update_message_with_id="
         const val REMOVE_MESSAGE_ROUTE = "remove_message_with_id="
+        const val ADD_FOLLOWERS = "add_followers_with_id="
         const val SPLITTER = "/"
         const val EMPTY_CHAR = ""
     }
