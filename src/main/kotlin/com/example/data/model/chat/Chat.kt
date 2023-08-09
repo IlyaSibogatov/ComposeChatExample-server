@@ -8,7 +8,8 @@ import org.bson.types.ObjectId
 data class Chat(
     val name: String,
     val password: String,
-    val owner: String,
+    var owner: String,
+    val ownerId: String,
     val timestamp: Long,
     @BsonId
     val id: String = ObjectId().toString(),
