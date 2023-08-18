@@ -1,10 +1,9 @@
 package com.example.routes
 
 import com.example.data.chat.ChatController
-import com.example.data.model.chat.Chat
+import com.example.data.controllers.RoomController
 import com.example.data.model.chat.ChatDTO
 import com.example.data.response.DefaultResponse
-import com.example.data.room.RoomController
 import com.example.session.ChatSession
 import com.example.utils.customexceptions.MemberAlreadyExistsException
 import io.ktor.http.*
