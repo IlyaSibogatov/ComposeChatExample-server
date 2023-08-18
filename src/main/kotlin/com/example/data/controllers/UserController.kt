@@ -1,24 +1,13 @@
-package com.example.data.users
+package com.example.data.controllers
 
 import com.example.data.model.user.Friend
 import com.example.data.model.user.NewUserInfo
-import com.example.data.model.user.UserDTO
 import com.example.data.model.user.UserFromId
 import com.example.data.source.UserDataSource
 
 class UserController(
-    private val userDataSource: UserDataSource,
+    private val userDataSource: UserDataSource
 ) {
-
-    suspend fun regUser(userCredentials: UserDTO): String? =
-        userDataSource.regUser(userCredentials)
-
-    suspend fun login(userCredentials: UserDTO): String? =
-        userDataSource.login(userCredentials)
-
-    suspend fun logout(uid: String): Boolean =
-        userDataSource.logout(uid)
-
     suspend fun getUserById(uid: String): UserFromId? =
         userDataSource.getUserById(uid)
 
@@ -33,4 +22,5 @@ class UserController(
 
     suspend fun updateUser(newInfo: NewUserInfo) =
         userDataSource.updateUser(newInfo)
+
 }

@@ -1,4 +1,4 @@
-package com.example.data.room
+package com.example.data.controllers
 
 import com.example.data.model.chat.Member
 import com.example.data.model.chat.Message
