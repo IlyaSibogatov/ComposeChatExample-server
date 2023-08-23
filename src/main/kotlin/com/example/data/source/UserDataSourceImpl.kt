@@ -107,12 +107,15 @@ class UserDataSourceImpl(
 
     override suspend fun updateUser(newInfo: NewUserInfo): Boolean {
         val user = users.find(User::id eq newInfo.id).first()
-        user?.let {
-            it.username = newInfo.username
-            it.selfInfo = newInfo.selfInfo
-            it.lastActionTime = System.currentTimeMillis()
-            users.updateOne(User::id eq newInfo.id, it)
-            return true
-        } ?: return false
+        val userWithSameName = users.find(User::username eq newInfo.username).first()
+        return if (userWithSameName == null && user != null || (userWithSameName?.id == user?.id)) {
+            user?.let {
+                it.username = newInfo.username
+                it.selfInfo = newInfo.selfInfo
+                it.lastActionTime = System.currentTimeMillis()
+                users.updateOne(User::id eq newInfo.id, it)
+            }
+            true
+        } else false
     }
 }

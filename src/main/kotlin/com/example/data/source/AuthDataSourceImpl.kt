@@ -41,8 +41,8 @@ class AuthDataSourceImpl(
                 user.lastActionTime = System.currentTimeMillis()
                 users.updateOne(User::username eq user.username, user)
                 user.id
-            } else ""
-        } else ""
+            } else null
+        } else null
     }
 
     override suspend fun logout(uid: String): Boolean {
