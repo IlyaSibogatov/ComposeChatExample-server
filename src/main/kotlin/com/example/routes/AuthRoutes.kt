@@ -13,19 +13,14 @@ fun Route.signup(authController: AuthController) {
     post(path = "/signup") {
         val userCredentials = call.receive<UserDTO>()
         authController.regUser(userCredentials).let {
-            it?.let {
+            it.let {
                 call.respond(
                     DefaultResponse(
                         msg = it,
                         status = HttpStatusCode.OK.value,
                     )
                 )
-            } ?: call.respond(
-                DefaultResponse(
-                    msg = "NaN",
-                    status = HttpStatusCode.NoContent.value,
-                )
-            )
+            }
         }
     }
 

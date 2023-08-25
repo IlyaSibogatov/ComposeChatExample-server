@@ -7,7 +7,7 @@ class AuthController(
     private val authDataSource: AuthDataSource,
 ) {
 
-    suspend fun regUser(userCredentials: UserDTO): String? =
+    suspend fun regUser(userCredentials: UserDTO): String =
         authDataSource.regUser(userCredentials)
 
     suspend fun login(userCredentials: UserDTO): String? =
