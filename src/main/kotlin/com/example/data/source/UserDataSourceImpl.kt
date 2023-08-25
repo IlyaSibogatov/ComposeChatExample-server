@@ -45,14 +45,24 @@ class UserDataSourceImpl(
     }
 
     override suspend fun friendshipRequest(selfId: String, userId: String): Boolean {
+        var result = false
+        val selfAccount = users.find(User::id eq selfId).first()
         val userAccount = users.find(User::id eq userId).first()
-        return if (userAccount == null) false
-        else {
-            userAccount.followers.add(selfId)
-            userAccount.friendshipRequests.add(selfId)
-            users.updateOne(User::id eq userId, userAccount)
-            true
+        if (selfAccount != null && userAccount != null) {
+            if (selfAccount.friendshipRequests.contains(userId)) {
+                selfAccount.friendshipRequests.remove(userId)
+                selfAccount.friends.add(userId)
+                userAccount.friends.add(selfId)
+                users.updateOne(User::id eq selfId, selfAccount)
+                users.updateOne(User::id eq userId, userAccount)
+            } else {
+                userAccount.followers.add(selfId)
+                userAccount.friendshipRequests.add(selfId)
+                users.updateOne(User::id eq userId, userAccount)
+            }
+            result = true
         }
+        return result
     }
 
     override suspend fun acceptFriendship(selfId: String, userId: String, accept: Boolean) {
