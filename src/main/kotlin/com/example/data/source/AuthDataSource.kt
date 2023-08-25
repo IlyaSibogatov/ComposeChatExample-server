@@ -7,7 +7,7 @@ import com.example.data.model.user.UserFromId
 
 interface AuthDataSource {
 
-    suspend fun regUser(userCredentials: UserDTO): String?
+    suspend fun regUser(userCredentials: UserDTO): String
 
     suspend fun login(userCredentials: UserDTO): String?
 

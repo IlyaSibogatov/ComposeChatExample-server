@@ -14,8 +14,8 @@ class AuthDataSourceImpl(
 
     private val users = db.getCollection<User>()
 
-    override suspend fun regUser(userCredentials: UserDTO): String? {
-        return if (users.find(User::username eq userCredentials.username).toList().isEmpty()) {
+    override suspend fun regUser(userCredentials: UserDTO): String {
+        return if (users.find(User::username eq userCredentials.username).first() == null) {
             users.insertOne(
                 User(
                     username = userCredentials.username,
@@ -29,8 +29,8 @@ class AuthDataSourceImpl(
                     friendshipRequests = mutableListOf(),
                 )
             )
-            users.find(User::username eq userCredentials.username).first()?.id
-        } else null
+            users.find(User::username eq userCredentials.username).first()!!.id
+        } else "username_exist"
     }
 
     override suspend fun login(userCredentials: UserDTO): String? {
