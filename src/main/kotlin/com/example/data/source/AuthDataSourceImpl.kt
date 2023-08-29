@@ -1,9 +1,7 @@
 package com.example.data.source
 
-import com.example.data.model.user.*
-import com.example.utils.Constants.FOLLOWERS
-import com.example.utils.Constants.FRIENDS
-import com.example.utils.Constants.FRIENDSHIPS_REQUESTS
+import com.example.data.model.user.User
+import com.example.data.model.user.UserDTO
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 import org.mindrot.jbcrypt.BCrypt
@@ -53,5 +51,22 @@ class AuthDataSourceImpl(
             users.updateOne(User::id eq uid, it)
             return true
         } ?: return false
+    }
+
+    override suspend fun changePass(current: String, new: String, uuid: String): String {
+        val user = users.find(User::id eq uuid).first()
+        user?.let {
+            var msg = ""
+            when {
+                !BCrypt.checkpw(current, user.password) -> msg = "current with old not same"
+                BCrypt.checkpw(new, user.password) -> msg = "new with old same"
+                else -> {
+                    user.password = BCrypt.hashpw(new, BCrypt.gensalt())
+                    users.updateOne(User::id eq uuid, user)
+                    msg = "pass changed"
+                }
+            }
+            return msg
+        } ?: return "user not find"
     }
 }

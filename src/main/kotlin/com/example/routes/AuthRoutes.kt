@@ -59,4 +59,12 @@ fun Route.signup(authController: AuthController) {
             )
         }
     }
+    post(path = "/change_pass") {
+        val uuid = call.parameters["uuid"]
+        val current = call.parameters["current"]
+        val new = call.parameters["new"]
+        call.respond(
+            authController.changePass(current!!, new!!, uuid!!)
+        )
+    }
 }
