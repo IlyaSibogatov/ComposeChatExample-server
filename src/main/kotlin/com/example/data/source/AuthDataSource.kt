@@ -13,4 +13,6 @@ interface AuthDataSource {
 
     suspend fun logout(uid: String): Boolean
 
+    suspend fun changePass(current: String, new: String, uuid: String): String
+
 }

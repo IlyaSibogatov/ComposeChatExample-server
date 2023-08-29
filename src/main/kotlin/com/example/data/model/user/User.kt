@@ -7,7 +7,7 @@ import org.bson.types.ObjectId
 @Serializable
 data class User(
     var username: String,
-    val password: String,
+    var password: String,
     var selfInfo: String,
     var onlineStatus: Boolean,
     var lastActionTime: Long,

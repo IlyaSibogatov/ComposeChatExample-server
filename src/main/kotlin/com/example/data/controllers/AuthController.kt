@@ -15,4 +15,7 @@ class AuthController(
 
     suspend fun logout(uid: String): Boolean =
         authDataSource.logout(uid)
+
+    suspend fun changePass(current: String, new: String, uuid: String): String =
+        authDataSource.changePass(current, new, uuid)
 }
