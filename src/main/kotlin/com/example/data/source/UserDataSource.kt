@@ -11,6 +11,8 @@ interface UserDataSource {
 
     suspend fun acceptFriendship(selfId: String, userId: String, accept: Boolean)
 
+    suspend fun removeFromFriends(selfId: String, userId: String, selfRemoving: Boolean)
+
     suspend fun getFollowerFriends(uid: String, type: String): List<Friend>
 
     suspend fun updateUser(newInfo: NewUserInfo): Boolean
