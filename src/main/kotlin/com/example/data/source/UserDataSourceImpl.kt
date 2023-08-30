@@ -74,6 +74,21 @@ class UserDataSourceImpl(
                 userAccount.friends.add(selfId)
             }
             myAccount.friendshipRequests.remove(userId)
+            myAccount.followers.remove(userId)
+            users.updateOne(User::id eq selfId, myAccount)
+            users.updateOne(User::id eq userId, userAccount)
+        }
+    }
+
+    override suspend fun removeFromFriends(selfId: String, userId: String, selfRemoving: Boolean) {
+        val myAccount = users.find(User::id eq selfId).first()
+        val userAccount = users.find(User::id eq userId).first()
+        if (myAccount != null && userAccount != null) {
+            myAccount.friends.remove(userId)
+            userAccount.friends.remove(selfId)
+            if (!selfRemoving) {
+                myAccount.followers.add(userId)
+            }
             users.updateOne(User::id eq selfId, myAccount)
             users.updateOne(User::id eq userId, userAccount)
         }

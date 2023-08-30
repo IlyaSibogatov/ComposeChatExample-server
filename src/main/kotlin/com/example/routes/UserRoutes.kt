@@ -65,6 +65,19 @@ fun Route.userRoutes(userController: UserController) {
             )
         )
     }
+    post(path = "/remove_friend") {
+        val selfId = call.parameters["selfId"]
+        val userId = call.parameters["userId"]
+        val selfRemoving = call.parameters["selfRemoving"].toBoolean()
+
+        userController.removeFromFriends(selfId!!, userId!!, selfRemoving)
+        call.respond(
+            DefaultResponse(
+                msg = "friend removed",
+                status = HttpStatusCode.OK.value
+            )
+        )
+    }
     post(path = "/update_user") {
         val newInfo = call.receive<NewUserInfo>()
         userController.updateUser(newInfo).let {
