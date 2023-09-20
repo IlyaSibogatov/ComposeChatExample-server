@@ -125,4 +125,26 @@ fun Route.userRoutes(userController: UserController) {
             )
         }
     }
+    post(path = "/update_token") {
+        val uuid = call.parameters["uuid"]
+        val token = call.parameters["token"]
+        val deviceId = call.parameters["deviceId"]
+        val deviceType = call.parameters["deviceType"]
+        userController.updateToken(uuid!!, token!!, deviceId!!, deviceType!!)
+        call.respond(
+            DefaultResponse(
+                "",
+                HttpStatusCode.OK.value
+            )
+        )
+    }
+    get(path = "/notifications") {
+        val uuid = call.parameters["uuid"]
+        userController.getNotifications(uuid!!).let {
+            call.respond(
+                HttpStatusCode.OK,
+                it
+            )
+        }
+    }
 }

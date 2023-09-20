@@ -1,10 +1,11 @@
 package com.example.data.source
 
-import com.example.data.model.user.Friend
-import com.example.data.model.user.NewUserInfo
-import com.example.data.model.user.User
-import com.example.data.model.user.UserFromId
+import com.example.data.model.NotificationModel
+import com.example.data.model.NotificationType
+import com.example.data.model.user.*
+import com.example.firebase.sendMessage
 import com.example.utils.Constants
+import org.bson.codecs.pojo.annotations.BsonId
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
@@ -48,18 +49,59 @@ class UserDataSourceImpl(
         var result = false
         val selfAccount = users.find(User::id eq selfId).first()
         val userAccount = users.find(User::id eq userId).first()
+        val newRequest = FriendShipRequest(uuid = selfId)
         if (selfAccount != null && userAccount != null) {
-            if (selfAccount.friendshipRequests.contains(userId)) {
-                selfAccount.friendshipRequests.remove(userId)
-                selfAccount.friends.add(userId)
+            if (selfAccount.friendshipRequests.find { it.uuid == userId } != null) {
+                val oldRequest = selfAccount.friendshipRequests.find { it.uuid == userId }
+                selfAccount.followers.remove(userId)
+                selfAccount.friendshipRequests.remove(
+                    oldRequest
+                )
                 userAccount.friends.add(selfId)
-                users.updateOne(User::id eq selfId, selfAccount)
-                users.updateOne(User::id eq userId, userAccount)
+                selfAccount.friends.add(userId)
+                sendMessage(
+                    NotificationModel(
+                        title = "${selfAccount.username} accept your friendship request",
+                        body = "Open app for looking it",
+                        token = userAccount.tokenFcm ?: ""
+                    )
+                ).let {
+                    userAccount.notifications.add(
+                        0,
+                        UserNotification(
+                            type = NotificationType.USER_ACCEPT_FRIENDSHIP,
+                            senderId = selfId,
+                            senderName = selfAccount.username,
+                            id = newRequest.id
+                        )
+                    )
+                    selfAccount.notifications.find {
+                        it.senderId == userId && it.type == NotificationType.REQUEST_FRIENDSHIP
+                    }?.type = NotificationType.ACCEPTED_FRIENDSHIP
+                }
             } else {
                 userAccount.followers.add(selfId)
-                userAccount.friendshipRequests.add(selfId)
-                users.updateOne(User::id eq userId, userAccount)
+                userAccount.friendshipRequests.add(FriendShipRequest(selfId))
+                sendMessage(
+                    NotificationModel(
+                        title = "${selfAccount.username} send you friendship request",
+                        body = "Open app for looking it",
+                        token = userAccount.tokenFcm ?: ""
+                    )
+                ).let {
+                    userAccount.notifications.add(
+                        0,
+                        UserNotification(
+                            type = NotificationType.REQUEST_FRIENDSHIP,
+                            senderId = selfId,
+                            senderName = selfAccount.username,
+                            id = newRequest.id
+                        )
+                    )
+                }
             }
+            users.updateOne(User::id eq selfId, selfAccount)
+            users.updateOne(User::id eq userId, userAccount)
             result = true
         }
         return result
@@ -72,8 +114,52 @@ class UserDataSourceImpl(
             if (accept && !myAccount.friends.contains(userId)) {
                 myAccount.friends.add(userId)
                 userAccount.friends.add(selfId)
+                sendMessage(
+                    NotificationModel(
+                        title = "${myAccount.username} accept your friendship request",
+                        body = "Open app for looking it",
+                        token = userAccount.tokenFcm ?: ""
+                    )
+                ).let {
+                    userAccount.notifications.add(
+                        0,
+                        UserNotification(
+                            type = NotificationType.USER_ACCEPT_FRIENDSHIP,
+                            senderId = selfId,
+                            senderName = myAccount.username,
+                            id = BsonId().toString(),
+                        )
+                    )
+                    myAccount.notifications.find {
+                        it.senderId == userId && it.type == NotificationType.REQUEST_FRIENDSHIP
+                    }?.type = NotificationType.ACCEPTED_FRIENDSHIP
+                }
             }
-            myAccount.friendshipRequests.remove(userId)
+            if (!accept && !myAccount.friends.contains(userId)) {
+                sendMessage(
+                    NotificationModel(
+                        title = "${myAccount.username} declined your friendship request",
+                        body = "Open app for looking it",
+                        token = userAccount.tokenFcm ?: ""
+                    )
+                ).let {
+                    userAccount.notifications.add(
+                        0,
+                        UserNotification(
+                            type = NotificationType.USER_DECLINED_FRIENDSHIP,
+                            senderId = selfId,
+                            senderName = myAccount.username,
+                            id = BsonId().toString(),
+                        )
+                    )
+                    myAccount.notifications.find {
+                        it.senderId == userId && it.type == NotificationType.REQUEST_FRIENDSHIP
+                    }?.type = NotificationType.DECLINED_FRIENDSHIP
+                }
+            }
+            myAccount.friendshipRequests.remove(
+                myAccount.friendshipRequests.find { it.uuid == userId }
+            )
             myAccount.followers.remove(userId)
             users.updateOne(User::id eq selfId, myAccount)
             users.updateOne(User::id eq userId, userAccount)
@@ -86,7 +172,7 @@ class UserDataSourceImpl(
         if (myAccount != null && userAccount != null) {
             myAccount.friends.remove(userId)
             userAccount.friends.remove(selfId)
-            if (!selfRemoving) {
+            if (!selfRemoving && myAccount.followers.find { it == userId } == null) {
                 myAccount.followers.add(userId)
             }
             users.updateOne(User::id eq selfId, myAccount)
@@ -111,8 +197,8 @@ class UserDataSourceImpl(
                 }
 
                 Constants.FRIENDSHIPS_REQUESTS -> {
-                    it.friendshipRequests.forEach { uid ->
-                        list.add(getFriend(uid)!!)
+                    it.friendshipRequests.forEach { request ->
+                        list.add(getFriend(request.uuid)!!)
                     }
                 }
             }
@@ -142,5 +228,24 @@ class UserDataSourceImpl(
             }
             true
         } else false
+    }
+
+    override suspend fun updateToken(uuid: String, newToken: String, deviceId: String, deviceType: String) {
+        val user = users.find(User::id eq uuid).first()
+        user?.let {
+            it.tokenFcm = newToken
+            it.deviceId = deviceId
+            it.deviceType = deviceType
+            users.updateOne(User::id eq uuid, it)
+        }
+    }
+
+    override suspend fun getNotifications(uuid: String): List<UserNotification> {
+        var result = listOf<UserNotification>()
+        val user = users.find(User::id eq uuid).first()
+        user?.let {
+            result = it.notifications
+        }
+        return result
     }
 }

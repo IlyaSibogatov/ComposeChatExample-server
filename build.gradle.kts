@@ -47,4 +47,10 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koin_version")
     testCompileOnly("io.insert-koin:koin-test:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
+
+    //FirebaseAdmin
+    implementation("com.google.firebase:firebase-admin:9.2.0")
+
+    //Slf4j
+    implementation("org.slf4j:slf4j-simple:2.0.5")
 }

@@ -3,6 +3,7 @@ package com.example.data.source
 import com.example.data.model.user.Friend
 import com.example.data.model.user.NewUserInfo
 import com.example.data.model.user.UserFromId
+import com.example.data.model.user.UserNotification
 
 interface UserDataSource {
     suspend fun getUserById(uid: String): UserFromId?
@@ -16,4 +17,9 @@ interface UserDataSource {
     suspend fun getFollowerFriends(uid: String, type: String): List<Friend>
 
     suspend fun updateUser(newInfo: NewUserInfo): Boolean
+
+    suspend fun updateToken(uuid: String, newToken: String, deviceId: String, deviceType: String)
+
+
+    suspend fun getNotifications(uuid: String): List<UserNotification>
 }
