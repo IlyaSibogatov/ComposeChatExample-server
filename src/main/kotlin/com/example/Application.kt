@@ -1,6 +1,7 @@
 package com.example
 
 import com.example.di.mainModule
+import com.example.firebase.FirebaseAdmin
 import com.example.plugins.*
 import io.ktor.server.application.*
 import org.koin.ktor.plugin.Koin
@@ -18,4 +19,5 @@ fun Application.module() {
     configureSerialization()
     configureMonitoring()
     configureSecurity()
+    FirebaseAdmin.init()
 }
