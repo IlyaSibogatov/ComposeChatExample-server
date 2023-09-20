@@ -3,6 +3,7 @@ package com.example.data.controllers
 import com.example.data.model.user.Friend
 import com.example.data.model.user.NewUserInfo
 import com.example.data.model.user.UserFromId
+import com.example.data.model.user.UserNotification
 import com.example.data.source.UserDataSource
 
 class UserController(
@@ -26,4 +27,9 @@ class UserController(
     suspend fun updateUser(newInfo: NewUserInfo) =
         userDataSource.updateUser(newInfo)
 
+    suspend fun updateToken(uuid: String, newToken: String, deviceId: String, deviceType: String) =
+        userDataSource.updateToken(uuid, newToken, deviceId, deviceType)
+
+    suspend fun getNotifications(uuid: String): List<UserNotification> =
+        userDataSource.getNotifications(uuid)
 }
