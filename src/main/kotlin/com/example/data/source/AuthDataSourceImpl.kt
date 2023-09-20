@@ -18,13 +18,13 @@ class AuthDataSourceImpl(
                 User(
                     username = userCredentials.username,
                     password = userCredentials.hashedPassword(),
-                    selfInfo = "",
                     onlineStatus = true,
                     lastActionTime = System.currentTimeMillis(),
                     timestamp = System.currentTimeMillis(),
                     friends = mutableListOf(),
                     followers = mutableListOf(),
                     friendshipRequests = mutableListOf(),
+                    notifications = mutableListOf(),
                 )
             )
             users.find(User::username eq userCredentials.username).first()!!.id
