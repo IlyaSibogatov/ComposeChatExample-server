@@ -64,7 +64,11 @@ class UserDataSourceImpl(
                         title = "${selfAccount.username} accept your friendship request",
                         body = "Open app for looking it",
                         token = userAccount.tokenFcm ?: ""
-                    )
+                    ),
+                    id = newRequest.id,
+                    type = NotificationType.USER_ACCEPT_FRIENDSHIP,
+                    senderId = selfId,
+                    senderName = selfAccount.username,
                 ).let {
                     userAccount.notifications.add(
                         0,
@@ -87,7 +91,11 @@ class UserDataSourceImpl(
                         title = "${selfAccount.username} send you friendship request",
                         body = "Open app for looking it",
                         token = userAccount.tokenFcm ?: ""
-                    )
+                    ),
+                    id = newRequest.id,
+                    type = NotificationType.REQUEST_FRIENDSHIP,
+                    senderId = selfId,
+                    senderName = selfAccount.username,
                 ).let {
                     userAccount.notifications.add(
                         0,
@@ -114,12 +122,17 @@ class UserDataSourceImpl(
             if (accept && !myAccount.friends.contains(userId)) {
                 myAccount.friends.add(userId)
                 userAccount.friends.add(selfId)
+                val newId = BsonId().toString()
                 sendMessage(
                     NotificationModel(
                         title = "${myAccount.username} accept your friendship request",
                         body = "Open app for looking it",
                         token = userAccount.tokenFcm ?: ""
-                    )
+                    ),
+                    id = newId,
+                    type = NotificationType.USER_ACCEPT_FRIENDSHIP,
+                    senderId = selfId,
+                    senderName = myAccount.username,
                 ).let {
                     userAccount.notifications.add(
                         0,
@@ -127,7 +140,7 @@ class UserDataSourceImpl(
                             type = NotificationType.USER_ACCEPT_FRIENDSHIP,
                             senderId = selfId,
                             senderName = myAccount.username,
-                            id = BsonId().toString(),
+                            id = newId,
                         )
                     )
                     myAccount.notifications.find {
@@ -136,12 +149,17 @@ class UserDataSourceImpl(
                 }
             }
             if (!accept && !myAccount.friends.contains(userId)) {
+                val newId = BsonId().toString()
                 sendMessage(
                     NotificationModel(
                         title = "${myAccount.username} declined your friendship request",
                         body = "Open app for looking it",
                         token = userAccount.tokenFcm ?: ""
-                    )
+                    ),
+                    id = newId,
+                    type = NotificationType.USER_DECLINED_FRIENDSHIP,
+                    senderId = selfId,
+                    senderName = myAccount.username,
                 ).let {
                     userAccount.notifications.add(
                         0,
@@ -149,7 +167,7 @@ class UserDataSourceImpl(
                             type = NotificationType.USER_DECLINED_FRIENDSHIP,
                             senderId = selfId,
                             senderName = myAccount.username,
-                            id = BsonId().toString(),
+                            id = newId,
                         )
                     )
                     myAccount.notifications.find {
