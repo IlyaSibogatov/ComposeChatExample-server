@@ -1,5 +1,6 @@
 package com.example.data.controllers
 
+import com.example.data.model.chat.Chat
 import com.example.data.model.chat.Member
 import com.example.data.model.chat.Message
 import com.example.data.model.user.UserChatInfo
@@ -8,37 +9,46 @@ import com.example.utils.customexceptions.MemberAlreadyExistsException
 import io.ktor.websocket.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.litote.kmongo.coroutine.CoroutineDatabase
+import org.litote.kmongo.eq
 import java.util.concurrent.ConcurrentHashMap
 
 class RoomController(
+    private val db: CoroutineDatabase,
     private val messageDataSource: MessageDataSource
 ) {
+
+    private val chats = db.getCollection<Chat>()
     private val members = ConcurrentHashMap<String, Member>()
 
-
-     suspend fun onJoin(
+    suspend fun onJoin(
         username: String,
         userId: String,
         sessionId: String,
         socket: WebSocketSession,
         chatId: String,
-    ) {
-        if (members.containsKey(username)) throw MemberAlreadyExistsException()
-        members[username] = Member(
-            username = username,
-            userId = userId,
-            sessionId = sessionId,
-            socket = socket,
-            chatId = chatId
-        )
-         if (!members.containsKey(userId))
-         messageDataSource.addFollower(chatId, userId).also {
-             sendMessage(
-                 senderUsername = username,
-                 senderId = userId,
-                 message = ADD_FOLLOWERS + userId
-             )
-         }
+    ): String {
+        chats.find(Chat::id eq chatId).first()?.let {
+            if (members.containsKey(username)) throw MemberAlreadyExistsException()
+            members[username] = Member(
+                username = username,
+                userId = userId,
+                sessionId = sessionId,
+                socket = socket,
+                chatId = chatId
+            )
+            if (!members.containsKey(userId))
+                messageDataSource.addFollower(chatId, userId).also {
+                    sendMessage(
+                        senderUsername = username,
+                        senderId = userId,
+                        message = ADD_FOLLOWERS + userId
+                    )
+                }
+            return "SUCCESS"
+        } ?: run {
+            return "ERROR"
+        }
     }
 
     suspend fun sendMessage(
@@ -65,6 +75,7 @@ class RoomController(
                             id = message.replace(REMOVE_MESSAGE_ROUTE, EMPTY_CHAR)
                         )
                     }
+
                     (message.startsWith(EDIT_MESSAGE_ROUTE)) -> {
                         val splittedMessage = message.split(SPLITTER)
                         messageDataSource.editMessage(
@@ -73,6 +84,7 @@ class RoomController(
                             msg = splittedMessage[1]
                         )
                     }
+
                     message.startsWith(ADD_FOLLOWERS) -> {}
                     else -> {
                         messageDataSource.insertMessage(member.chatId, msg = messageEntity)
@@ -86,6 +98,7 @@ class RoomController(
 
     suspend fun getAllMessages(chatId: String): List<Message> =
         messageDataSource.getAllMessages(chatId) ?: emptyList()
+
     suspend fun getFollowers(chatId: String): List<UserChatInfo> =
         messageDataSource.getFollowers(chatId)
 

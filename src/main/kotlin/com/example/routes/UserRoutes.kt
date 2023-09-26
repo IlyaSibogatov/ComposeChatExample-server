@@ -140,10 +140,15 @@ fun Route.userRoutes(userController: UserController) {
     }
     get(path = "/notifications") {
         val uuid = call.parameters["uuid"]
-        userController.getNotifications(uuid!!).let {
+        userController.getNotifications(uuid!!)?.let {
             call.respond(
                 HttpStatusCode.OK,
                 it
+            )
+        } ?: run {
+            call.respond(
+                HttpStatusCode.NoContent,
+                "List is empty"
             )
         }
     }

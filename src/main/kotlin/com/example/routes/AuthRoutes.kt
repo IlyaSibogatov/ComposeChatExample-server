@@ -8,6 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.io.File
 
 fun Route.signup(authController: AuthController) {
     post(path = "/signup") {
@@ -65,6 +66,18 @@ fun Route.signup(authController: AuthController) {
         val new = call.parameters["new"]
         call.respond(
             authController.changePass(current!!, new!!, uuid!!)
+        )
+    }
+    post(path = "/delete_acc") {
+        val uuid = call.parameters["uuid"]
+        authController.deleteAcc(uuid!!)
+        val file = File("static/uploads_avatars/$uuid.jpeg")
+        file.delete()
+        call.respond(
+            DefaultResponse(
+                msg = "Account was deleted",
+                status = HttpStatusCode.OK.value
+            )
         )
     }
 }
