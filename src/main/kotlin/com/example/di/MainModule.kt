@@ -31,7 +31,7 @@ val mainModule = module {
         AuthController(get())
     }
     single {
-        RoomController(get())
+        RoomController(get(), get())
     }
     single {
         ChatController(get())

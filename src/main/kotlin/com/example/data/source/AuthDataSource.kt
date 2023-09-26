@@ -1,9 +1,6 @@
 package com.example.data.source
 
-import com.example.data.model.user.Friend
-import com.example.data.model.user.NewUserInfo
 import com.example.data.model.user.UserDTO
-import com.example.data.model.user.UserFromId
 
 interface AuthDataSource {
 
@@ -14,5 +11,7 @@ interface AuthDataSource {
     suspend fun logout(uid: String): Boolean
 
     suspend fun changePass(current: String, new: String, uuid: String): String
+
+    suspend fun deleteAcc(uuid: String)
 
 }

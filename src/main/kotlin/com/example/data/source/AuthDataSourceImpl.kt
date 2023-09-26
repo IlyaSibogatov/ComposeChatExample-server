@@ -69,4 +69,8 @@ class AuthDataSourceImpl(
             return msg
         } ?: return "user not find"
     }
+
+    override suspend fun deleteAcc(uuid: String) {
+        users.deleteOne(User::id eq uuid)
+    }
 }

@@ -84,7 +84,8 @@ class UserDataSourceImpl(
                     }?.type = NotificationType.ACCEPTED_FRIENDSHIP
                 }
             } else {
-                userAccount.followers.add(selfId)
+                if (!userAccount.followers.contains(selfId))
+                    userAccount.followers.add(selfId)
                 userAccount.friendshipRequests.add(FriendShipRequest(selfId))
                 sendMessage(
                     NotificationModel(
@@ -258,12 +259,12 @@ class UserDataSourceImpl(
         }
     }
 
-    override suspend fun getNotifications(uuid: String): List<UserNotification> {
-        var result = listOf<UserNotification>()
+    override suspend fun getNotifications(uuid: String): List<UserNotification>? {
+        var result: List<UserNotification>? = null
         val user = users.find(User::id eq uuid).first()
         user?.let {
             result = it.notifications
-        }
-        return result
+            return result
+        } ?: return null
     }
 }

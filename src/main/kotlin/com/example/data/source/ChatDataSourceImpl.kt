@@ -4,7 +4,6 @@ import com.example.data.model.chat.Chat
 import com.example.data.model.chat.Message
 import com.example.data.model.chat.MessageHistory
 import com.example.data.model.user.User
-import com.example.data.model.user.UserChatInfo
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
@@ -61,6 +60,7 @@ class ChatDataSourceImpl(
         val messagesList = db.getCollection<Message>(collectionName = chatId)
         chat?.let {
             chats.deleteOne(Chat::id eq chatId)
+            messageHistory.deleteOne(MessageHistory::name eq chatId)
             messagesList.drop()
             return true
         } ?: return false
