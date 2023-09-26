@@ -20,6 +20,5 @@ interface UserDataSource {
 
     suspend fun updateToken(uuid: String, newToken: String, deviceId: String, deviceType: String)
 
-
-    suspend fun getNotifications(uuid: String): List<UserNotification>
+    suspend fun getNotifications(uuid: String): List<UserNotification>?
 }

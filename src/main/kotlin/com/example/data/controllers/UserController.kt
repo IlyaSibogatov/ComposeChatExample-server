@@ -30,6 +30,6 @@ class UserController(
     suspend fun updateToken(uuid: String, newToken: String, deviceId: String, deviceType: String) =
         userDataSource.updateToken(uuid, newToken, deviceId, deviceType)
 
-    suspend fun getNotifications(uuid: String): List<UserNotification> =
+    suspend fun getNotifications(uuid: String): List<UserNotification>? =
         userDataSource.getNotifications(uuid)
 }

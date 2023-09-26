@@ -18,4 +18,7 @@ class AuthController(
 
     suspend fun changePass(current: String, new: String, uuid: String): String =
         authDataSource.changePass(current, new, uuid)
+
+    suspend fun deleteAcc(uuid: String) =
+        authDataSource.deleteAcc(uuid)
 }

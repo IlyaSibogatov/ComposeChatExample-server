@@ -30,14 +30,24 @@ fun Route.chatSocketRoute(roomController: RoomController) {
                 sessionId = session.sessionId,
                 socket = this,
                 chatId = session.chatId
-            )
-            incoming.consumeEach { frame ->
-                if (frame is Frame.Text) {
-                    roomController.sendMessage(
-                        senderUsername = session.username,
-                        senderId = session.userId,
-                        message = frame.readText(),
-                    )
+            ).let {
+                when (it) {
+                    "ERROR" -> {
+                        close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "No session"))
+                        return@webSocket
+                    }
+
+                    "SUCCESS" -> {
+                        incoming.consumeEach { frame ->
+                            if (frame is Frame.Text) {
+                                roomController.sendMessage(
+                                    senderUsername = session.username,
+                                    senderId = session.userId,
+                                    message = frame.readText(),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         } catch (e: MemberAlreadyExistsException) {
