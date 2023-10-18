@@ -3,7 +3,6 @@ package com.example.routes
 import com.example.data.chat.ChatController
 import com.example.data.controllers.RoomController
 import com.example.data.model.chat.ChatDTO
-import com.example.data.response.DefaultResponse
 import com.example.session.ChatSession
 import com.example.utils.customexceptions.MemberAlreadyExistsException
 import io.ktor.http.*
@@ -79,50 +78,32 @@ fun Route.messages(roomController: RoomController) {
 
 fun Route.chats(chatController: ChatController) {
     get(path = "/chats") {
+        val page = call.parameters["page"]
+        val limit = call.parameters["limit"]
         call.respond(
             HttpStatusCode.OK,
-            chatController.getAllChats()
+            chatController.getAllChats(page!!.toInt(), limit!!.toInt())
         )
     }
     post(path = "/create") {
         val chat = call.receive<ChatDTO>()
-        chatController.createChat(chat).let {
-            if (it) call.respond(
-                DefaultResponse(
-                    msg = "Chat has been created",
-                    status = HttpStatusCode.OK.value
-                )
-            )
-            else call.respond(
-                DefaultResponse(
-                    msg = "You already have chat",
-                    status = HttpStatusCode.NoContent.value
-                )
-            )
-        }
+        call.respond(
+            status = HttpStatusCode.OK,
+            message = chatController.createChat(chat) ?: "error"
+        )
     }
     post(path = "/update") {
         val chat = call.receive<ChatDTO>()
-        chatController.updateChat(chat).let {
-            if (it) call.respond(
-                DefaultResponse(
-                    msg = "Chat was updated",
-                    status = HttpStatusCode.OK.value,
-                )
-            )
-            else call.respond(
-                DefaultResponse(
-                    msg = "Chat update exception",
-                    status = HttpStatusCode.NoContent.value,
-                )
-            )
-        }
+        call.respond(
+            status = HttpStatusCode.OK,
+            message = chatController.updateChat(chat) ?: "error"
+        )
     }
     post(path = "/delete") {
         val chatId = call.parameters["chatId"]
-        chatId?.let { chatid ->
-            chatController.removeChat(chatid).let { repsonse ->
-                if (repsonse) {
+        chatId?.let { chatId ->
+            chatController.removeChat(chatId).let { response ->
+                if (response) {
                     call.respond(
                         HttpStatusCode.OK,
                         true

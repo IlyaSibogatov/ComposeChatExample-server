@@ -8,9 +8,9 @@ class ChatController(
     private val chatDataSource: ChatDataSource,
 ) {
 
-    suspend fun getAllChats(): List<Chat> = chatDataSource.getAllChats()
+    suspend fun getAllChats(page: Int, limit: Int): List<Chat> = chatDataSource.getAllChats(page, limit)
 
-    suspend fun createChat(chat: ChatDTO): Boolean {
+    suspend fun createChat(chat: ChatDTO): Chat? {
         val chatEntity = Chat(
             name = chat.name,
             password = chat.password,
@@ -23,7 +23,7 @@ class ChatController(
         }
     }
 
-    suspend fun updateChat(chat: ChatDTO): Boolean {
+    suspend fun updateChat(chat: ChatDTO): Chat? {
         val chatEntity = Chat(
             name = chat.name,
             password = chat.password,
