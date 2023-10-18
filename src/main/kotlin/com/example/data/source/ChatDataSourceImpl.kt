@@ -15,32 +15,32 @@ class ChatDataSourceImpl(
     private val messageHistory = db.getCollection<MessageHistory>()
     private val users = db.getCollection<User>()
 
-    override suspend fun getAllChats(): List<Chat> {
-        val list = chats.find()
-            .descendingSort(Chat::timestamp).toList()
+    override suspend fun getAllChats(page: Int, limit: Int): List<Chat> {
+        val list = chats.find().descendingSort(Chat::timestamp)
+            .skip(skip = (page - 1) * limit).limit(limit = limit).partial(true).toList()
         list.map { chat ->
             chat.owner = users.find(User::id eq chat.ownerId).first()!!.username
         }
         return list
     }
 
-    override suspend fun createChat(chat: Chat): Boolean {
-        chats.find(Chat::ownerId eq chat.ownerId).first().let {
-            if (it == null) {
-                chats.insertOne(chat)
-                messageHistory.insertOne(
-                    MessageHistory(
-                        name = chat.id,
-                        users = listOf(chat.ownerId),
-                        messages = listOf()
-                    )
+    override suspend fun createChat(chat: Chat): Chat? {
+        chats.find(Chat::ownerId eq chat.ownerId).first()?.let {
+            return null
+        } ?: let {
+            chats.insertOne(chat)
+            messageHistory.insertOne(
+                MessageHistory(
+                    name = chat.id,
+                    users = listOf(chat.ownerId),
+                    messages = listOf()
                 )
-                return true
-            } else return false
+            )
+            return chat
         }
     }
 
-    override suspend fun updateChat(chat: Chat): Boolean {
+    override suspend fun updateChat(chat: Chat): Chat? {
         chats.find(Chat::ownerId eq chat.ownerId).first()?.let {
             val updatedChat = Chat(
                 id = it.id,
@@ -51,8 +51,8 @@ class ChatDataSourceImpl(
                 timestamp = it.timestamp,
             )
             chats.updateOne(Chat::id eq it.id, updatedChat)
-            return true
-        } ?: return false
+            return updatedChat
+        } ?: return null
     }
 
     override suspend fun removeChat(chatId: String): Boolean {
