@@ -4,12 +4,10 @@ import com.example.data.controllers.UserController
 import com.example.data.model.user.NewUserInfo
 import com.example.data.response.DefaultResponse
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import java.io.File
 
 fun Route.userRoutes(userController: UserController) {
     get(path = "/get_user") {
@@ -91,36 +89,6 @@ fun Route.userRoutes(userController: UserController) {
                 DefaultResponse(
                     msg = "Update failed",
                     status = 204,
-                )
-            )
-        }
-    }
-    post(path = "/upload_avatar") {
-        val uid = call.parameters["userId"]
-        val multipart = call.receiveMultipart()
-        try {
-            multipart.forEachPart { part ->
-                if (part is PartData.FileItem) {
-                    val file = File("static/uploads_avatars/$uid.jpeg")
-                    part.streamProvider().use { its ->
-                        file.outputStream().buffered().use {
-                            its.copyTo(it)
-                        }
-                    }
-                    part.dispose()
-                }
-            }
-            call.respond(
-                DefaultResponse(
-                    "",
-                    HttpStatusCode.OK.value,
-                )
-            )
-        } catch (e: Exception) {
-            call.respond(
-                DefaultResponse(
-                    "",
-                    HttpStatusCode.NoContent.value,
                 )
             )
         }

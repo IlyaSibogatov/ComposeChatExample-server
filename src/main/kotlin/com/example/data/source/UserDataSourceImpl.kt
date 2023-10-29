@@ -6,11 +6,12 @@ import com.example.data.model.user.*
 import com.example.firebase.sendMessage
 import com.example.utils.Constants
 import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.types.ObjectId
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
 class UserDataSourceImpl(
-    private val db: CoroutineDatabase,
+    db: CoroutineDatabase,
 ) : UserDataSource {
 
     private val users = db.getCollection<User>()
@@ -33,13 +34,16 @@ class UserDataSourceImpl(
             }
             return UserFromId(
                 id = user.id,
+                avatarId = user.avatarId,
                 username = user.username,
                 selfInfo = user.selfInfo,
                 onlineStatus = user.onlineStatus,
                 lastActionTime = user.lastActionTime,
-                friends = friends.sortedByDescending { it.onlineStatus }.take(5),
+                friends = friends.sortedByDescending { it.onlineStatus }.take(5).toMutableList(),
                 followers = user.followers,
                 friendshipRequests = user.friendshipRequests,
+                listPhotos = user.listPhotos,
+                listVideos = user.listVideos,
             )
         }
         return null
@@ -123,7 +127,7 @@ class UserDataSourceImpl(
             if (accept && !myAccount.friends.contains(userId)) {
                 myAccount.friends.add(userId)
                 userAccount.friends.add(selfId)
-                val newId = BsonId().toString()
+                val newId = ObjectId().toString()
                 sendMessage(
                     NotificationModel(
                         title = "${myAccount.username} accept your friendship request",

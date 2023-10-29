@@ -101,8 +101,8 @@ fun Route.chats(chatController: ChatController) {
     }
     post(path = "/delete") {
         val chatId = call.parameters["chatId"]
-        chatId?.let { chatId ->
-            chatController.removeChat(chatId).let { response ->
+        chatId?.let {
+            chatController.removeChat(it).let { response ->
                 if (response) {
                     call.respond(
                         HttpStatusCode.OK,
