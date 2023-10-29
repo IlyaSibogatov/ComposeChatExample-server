@@ -1,11 +1,11 @@
 package com.example.plugins
 
 import com.example.data.chat.ChatController
-import com.example.data.controllers.RoomController
 import com.example.data.controllers.AuthController
+import com.example.data.controllers.MediaController
+import com.example.data.controllers.RoomController
 import com.example.data.controllers.UserController
 import com.example.routes.*
-import com.example.routes.signup
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.routing.*
@@ -17,11 +17,12 @@ fun Application.configureRouting() {
     val chatController by inject<ChatController>()
     val authController by inject<AuthController>()
     val userController by inject<UserController>()
+    val mediaController by inject<MediaController>()
     install(Routing) {
         static("/") {
             staticRootFolder = File("static/")
-            static("/images"){
-                files("uploads_avatars/")
+            static("/uploads") {
+                files("uploads/")
             }
         }
         signup(authController)
@@ -29,5 +30,6 @@ fun Application.configureRouting() {
         chatSocketRoute(roomController)
         chats(chatController)
         messages(roomController)
+        media(mediaController)
     }
 }

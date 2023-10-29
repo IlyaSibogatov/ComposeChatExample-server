@@ -8,7 +8,7 @@ import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
 class MessageDataSourceImpl(
-    private val db: CoroutineDatabase
+    private val db: CoroutineDatabase,
 ) : MessageDataSource {
 
     private var messageHistory = db.getCollection<MessageHistory>()
@@ -35,15 +35,14 @@ class MessageDataSourceImpl(
 
     override suspend fun getFollowers(chatId: String): List<UserChatInfo> {
         val chatUsers = messageHistory.find(MessageHistory::name eq chatId).first()?.users
-        val followers = chatUsers?.map { it ->
+        return chatUsers?.map {
             users.find(User::id eq it).first().let { user ->
                 UserChatInfo(
                     user?.id ?: "",
                     user?.username ?: "",
                 )
             }
-        }
-        return followers ?: emptyList()
+        } ?: emptyList()
     }
 
     override suspend fun insertMessage(chatId: String, msg: Message) {

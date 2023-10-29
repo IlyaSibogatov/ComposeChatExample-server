@@ -1,6 +1,8 @@
 package com.example.data.model.user
 
 import com.example.data.model.NotificationType
+import com.example.data.model.sources.PhotoItem
+import com.example.data.model.sources.VideoItem
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
@@ -9,6 +11,7 @@ import org.bson.types.ObjectId
 data class User(
     var username: String,
     var password: String,
+    var avatarId: String,
     var selfInfo: String = "",
     var onlineStatus: Boolean,
     var lastActionTime: Long,
@@ -17,6 +20,8 @@ data class User(
     var followers: MutableList<String>,
     var friendshipRequests: MutableList<FriendShipRequest>,
     var notifications: MutableList<UserNotification>,
+    var listPhotos: MutableList<PhotoItem>,
+    var listVideos: MutableList<VideoItem>,
     var tokenFcm: String? = null,
     var deviceId: String? = null,
     var deviceType: String? = null,
@@ -27,11 +32,14 @@ data class User(
 @Serializable
 data class UserFromId(
     val id: String,
+    val avatarId: String,
     val username: String,
     val selfInfo: String,
     var onlineStatus: Boolean,
     var lastActionTime: Long,
-    val friends: List<Friend>,
+    val friends: MutableList<Friend>,
+    var listPhotos: MutableList<PhotoItem>,
+    var listVideos: MutableList<VideoItem>,
     var followers: MutableList<String>,
     var friendshipRequests: MutableList<FriendShipRequest>,
 )
