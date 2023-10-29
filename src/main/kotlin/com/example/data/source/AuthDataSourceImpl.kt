@@ -17,6 +17,7 @@ class AuthDataSourceImpl(
             users.insertOne(
                 User(
                     username = userCredentials.username,
+                    avatarId = "",
                     password = userCredentials.hashedPassword(),
                     onlineStatus = true,
                     lastActionTime = System.currentTimeMillis(),
@@ -25,6 +26,8 @@ class AuthDataSourceImpl(
                     followers = mutableListOf(),
                     friendshipRequests = mutableListOf(),
                     notifications = mutableListOf(),
+                    listPhotos = mutableListOf(),
+                    listVideos = mutableListOf()
                 )
             )
             users.find(User::username eq userCredentials.username).first()!!.id
