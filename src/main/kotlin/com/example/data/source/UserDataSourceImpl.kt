@@ -39,7 +39,7 @@ class UserDataSourceImpl(
                 selfInfo = user.selfInfo,
                 onlineStatus = user.onlineStatus,
                 lastActionTime = user.lastActionTime,
-                friends = friends.sortedByDescending { it.onlineStatus }.take(5).toMutableList(),
+                friends = friends.sortedByDescending { it.onlineStatus }.take(6).toMutableList(),
                 followers = user.followers,
                 friendshipRequests = user.friendshipRequests,
                 listPhotos = user.listPhotos,
