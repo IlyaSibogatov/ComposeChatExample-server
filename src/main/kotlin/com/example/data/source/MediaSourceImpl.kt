@@ -33,6 +33,7 @@ class MediaSourceImpl(
                 description = description,
             )
             it.listVideos.add(0, video)
+            users.updateOne(User::id eq uuid, it)
             return video.id
         } ?: return ""
     }
