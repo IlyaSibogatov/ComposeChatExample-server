@@ -1,8 +1,10 @@
 package com.example.data.source
 
+import com.example.data.model.sources.MediaDescription
 import com.example.data.model.sources.PhotoItem
 import com.example.data.model.sources.VideoItem
 import com.example.data.model.user.User
+import com.example.utils.MediaType
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
@@ -11,6 +13,29 @@ class MediaSourceImpl(
 ) : MediaSource {
 
     private val users = db.getCollection<User>()
+
+    override suspend fun getMediaDescription(uuid: String, mediaId: String, type: String): MediaDescription? {
+        val user = users.find(User::id eq uuid).first()
+        var mediaDescription: MediaDescription? = null
+        user?.let {
+            mediaDescription = if (type == MediaType.IMAGE.value)
+                it.listPhotos.find { it.id == mediaId }?.let {
+                    MediaDescription(
+                        id = mediaId,
+                        name = "",
+                        description = it.description
+                    )
+                }
+            else it.listVideos.find { it.id == mediaId }?.let {
+                MediaDescription(
+                    id = mediaId,
+                    name = it.name,
+                    description = it.description
+                )
+            }
+        }
+        return mediaDescription
+    }
 
     override suspend fun addPhoto(uuid: String, description: String, isAvatar: Boolean): String {
         val user = users.find(User::id eq uuid).first()
