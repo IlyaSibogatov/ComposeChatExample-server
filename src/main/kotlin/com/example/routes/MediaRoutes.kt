@@ -11,6 +11,22 @@ import io.ktor.server.routing.*
 import java.io.File
 
 fun Route.media(mediaController: MediaController) {
+    get(path = "/media_description") {
+        val uid = call.parameters["userId"]
+        val mediaId = call.parameters["mediaId"]
+        val type = call.parameters["type"]
+
+        mediaController.getMediaDescription(uuid = uid!!, mediaId = mediaId!!, type = type!!)?.let {
+            call.respond(
+                HttpStatusCode.OK,
+                it
+            )
+        } ?: call.respond(
+            HttpStatusCode.NoContent,
+            ""
+        )
+    }
+
     post(path = "/upload_video") {
         val uid = call.parameters["userId"]
         val name = call.parameters["name"]
